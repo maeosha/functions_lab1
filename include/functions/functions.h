@@ -1,220 +1,141 @@
-#pragma once
-
-
-
-
 #include <iostream>
-
 #include <utility>
-
 #include <iomanip>
-
 #include <conio.h>
+#include <vector>
+#include <memory>
 
+class Function;
 
-
-
-
-
-
-
-
-
-static const int CAPASITY = 30;
-
-class minimal;
-
-
-
-
-enum TypeFunction
-
-{
-
-	POWERFUNCTION,
-
-	NATUREFUNCTION,
-
-	NONE
-
-};
-
-
-
+using Function_ptr = std::shared_ptr<Function>;
 
 class Function {
-
-private:
-
-	TypeFunction type;
-
-
-
-
-	float parameter_a;
-
-	float parameter_b;
-
-	float parameter_c;
-
 	float argument;
+public:
+	virtual bool NONE() = 0;
 
+	virtual float calculating_the_function(float argument) = 0;
+	virtual Function_ptr calculating_the_diff() = 0;
+	virtual Function_ptr calculating_the_primitive() = 0;
 
+	virtual Function_ptr clone() = 0;
 
+	virtual void print() = 0;
+	virtual void print_diff() = 0;
+	virtual void print_primitive() = 0;
 
+	virtual ~Function() = default;
 
+protected:
+	Function() = default;
+	Function(const Function&) = default;
+	Function& operator=(const Function&) = default;
+};
 
-
+class Power_function : public Function {
+	float parameter_a;
+	float parameter_b;
 public:
 
-	Function();
+	Power_function();
 
+	Power_function(float parameter_a, float parameter_b);
 
-
-
-	Function(float parameter_a, float parameter_b);
-
-	Function(float parameter_c);
-
-
-
-
-
-
+	bool NONE() override;
 
 	void set_parameter_a(float parameter_a);
-
 	void set_parameter_b(float parameter_b);
 
-	void set_parameter_c(float parameter_c);
-
-	void set_argument(float argument);
-
-
-
-
-
-
-
 	float get_parameter_a();
-
 	float get_parameter_b();
+
+	Function_ptr clone() override;
+
+	float calculating_the_function(float argument) override;
+	Function_ptr calculating_the_diff() override;
+	Function_ptr calculating_the_primitive() override;
+
+	void print() override;
+	void print_diff() override;
+	void print_primitive() override;
+};
+
+class Nature_function : public Function {
+	float parameter_c;
+public:
+	Nature_function();
+	Nature_function(float c);
+
+	bool NONE() override;
+
+	void set_parameter_c(float parameter_a);
 
 	float get_parameter_c();
 
-	float get_argument();
+	Function_ptr clone() override;
 
-	TypeFunction get_type();
+	float calculating_the_function(float argument) override;
+	Function_ptr calculating_the_diff() override;
+	Function_ptr calculating_the_primitive() override;
 
+	void print() override;
+	void print_diff() override;
+	void print_primitive() override;
 };
 
-
-
-
-
-
-
-class Function_list {
-
-private:
-
-	Function** data_ptr;
-
-	int size;
-
+class NONE_function : public Function {
+	int a;
 public:
 
-	int quantity = 0;
+	bool NONE() override;
+
+	float calculating_the_function(float argument) override {
+		return 0;
+	}
+	Function_ptr calculating_the_diff() override {
+		return std::make_shared<Nature_function>(0);
+	}
+	Function_ptr calculating_the_primitive() override {
+		return std::make_shared<Nature_function>(0);
+	}
 
 
+	Function_ptr clone() override {
+		return std::make_shared<Nature_function>(0);
+	}
+
+	void print() override;
+	void print_diff() override { std::cout << ""; }
+	void print_primitive() override { std::cout << ""; }
+};
+
+class Function_list {
+	std::vector<Function_ptr> data_ptr;
+	size_t size;
+	size_t quantity = 0;
+public:
+	Function_list() {
+		data_ptr.push_back(std::make_shared<NONE_function>());
+		size = 1;
+	}
+
+	size_t get_size();
+
+	Function_ptr operator[](int index);
 
 
-	Function_list();
-
-	Function_list(int index);
-
-
-
-
-	void swap(Function_list& container) noexcept;
-
-
-
-
-
-
-
-	int get_size();
-
-	Function** get_data();
-
-
-
-
-	Function_list operator=(Function_list& container);
-
-	Function operator[](int index);
-
-
-
-
-	Function_list(Function_list& container);
-
-
-
-
-	~Function_list() noexcept;
-
-
-
-
-
-
-
-	void add_element(Function& item, int index);
-
-	void add_element_by_index(Function& item, int index);
-
+	void add_element(Function_ptr item, int index);
+	void add_element_by_index(Function_ptr item, int index);
 	void delete_element(int index);
-
-	float calculating_the_function(float argument, int index);
-
-	Function calculating_the_diff(int index);
-
-	float calculating_the_primitive(int index);
 
 	int finding_min_derivative(float argument);
 
-
-
-
-
-
-
-	void print(int index);
-
 };
 
-
-
-
-std::ostream& operator<<(std::ostream& stream, Function* item);
-
-
-
-
-void clear();
-
 void Console();
-
 void menu(int index);
-
 void menu_adder(int index, int key1);
-
 void menu_value(int index);
-
 void menu_derivative(int index);
-
 void menu_primitive(int index);
-
 void menu_min_derivative(int index);

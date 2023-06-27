@@ -1,16 +1,15 @@
 #include <functions/functions.h>
 
-Function_list container(1);
-
+Function_list container;
 
 void menu(int index) {
 
 	std::cout << "Function " << index + 1 << "/" << container.get_size() << std::endl;
 	std::cout << "----------------------\n";
-	container.print(index);
-	if (container[index].get_type() == NONE) {
+	container[index]->print();
+	if (container[index]->NONE() == 1) {
 		std::cout << "1. Add a function.\n";
-		std::cout << "2. Add a function by the index.\n";
+		std::cout << "2. Add a function by the index.\n\n";
 	}
 	else {
 		std::cout << "1. Add a function.\n";
@@ -46,16 +45,18 @@ void menu_adder(int index, int key1) {
 	float parameter_a;
 	float parameter_b;
 	float parameter_c;
-	int add_index;
-	Function item;
+	Function_ptr item;
 	system("cls");
 	if (key1 == 50) {
 		std::cout << "By which index do you want to add an element?" << std::endl;
-		std::cin >> add_index;
-		if (add_index < 1) {
+		std::cin >> index;
+		system("cls");
+		if (index < 1) {
 			throw("The index must be greater than 1");
 		}
+		index--;
 	}
+
 	std::cout << "What function do you want to add:\n";
 	std::cout << "1. ax^b.\n";
 	std::cout << "2. c*ln(|x|)\n";
@@ -66,26 +67,17 @@ void menu_adder(int index, int key1) {
 		std::cin >> parameter_a;
 		std::cout << "Enter a parameter b: ";
 		std::cin >> parameter_b;
-		item = Function(parameter_a, parameter_b);
+		auto item = std::make_shared<Power_function>(parameter_a, parameter_b);
+		container.add_element_by_index(item, index);
+
 	}
+
 	if (key == 50) {
 		system("cls");
 		std::cout << "Enter a parameter c: ";
 		std::cin >> parameter_c;
-		item = Function(parameter_c);
-	}
-	switch (key1)
-	{
-	case 49:
-		container.add_element(item, index);
-		break;
-	case 50:
-		if (add_index > container.get_size()) {
-			container.add_element_by_index(item, add_index - 1);
-		}
-		else {
-			container.add_element(item, add_index - 1);
-		}
+		auto item = std::make_shared<Nature_function>(parameter_c);
+		container.add_element_by_index(item, index);
 	}
 }
 
@@ -95,46 +87,21 @@ void menu_value(int index) {
 	system("cls");
 	std::cout << "Enter the function argument: ";
 	std::cin >> argument;
-	value = container.calculating_the_function(argument, index);
-	std::cout << "f(%.2f) = %.2f\n", argument, value;
+
+	value = container[index]->calculating_the_function(argument);
+	std::cout << "f(" << argument << ") = " << value << std::endl;
 	system("pause");
 }
 
 void menu_derivative(int index) {
 	system("cls");
-	TypeFunction type = container[index].get_type();
-	if (type == POWERFUNCTION) {
-		float parameter_a = container.calculating_the_diff(index).get_parameter_a();
-		float parameter_b = container.calculating_the_diff(index).get_parameter_b();
-		Function* New_item = new Function(parameter_a, parameter_b);
-		std::cout << New_item;
-		delete New_item;
-	}
-	else {
-		float parameter_c = container[index].get_parameter_c();
-		Function* New_item = new Function(parameter_c);
-		std::cout << New_item;
-		delete New_item;
-	}
+	container[index]->calculating_the_diff()->print_diff();
 	system("pause");
 }
 
 void menu_primitive(int index) {
 	system("cls");
-	TypeFunction type = container[index].get_type();
-	if (type == POWERFUNCTION) {
-		float parameter_a = container[index].get_parameter_a();
-		float parameter_b = container.calculating_the_primitive(index);
-		Function* New_item = new Function(parameter_a, parameter_b);
-		std::cout << New_item;
-		delete New_item;
-	}
-	if (type == NATUREFUNCTION) {
-		float parameter_c = container[index].get_parameter_c();
-		Function* New_item = new Function(parameter_c);
-		std::cout << New_item;
-		delete New_item;
-	}
+	container[index]->calculating_the_primitive()->print_primitive();
 	system("pause");
 }
 
@@ -146,7 +113,7 @@ void menu_min_derivative(int index) {
 	std::cout << "Enter the function argument: ";
 	std::cin >> argument;
 	min_index = container.finding_min_derivative(argument);
-	min_derivative_value = container.calculating_the_function(argument, min_index);
+	min_derivative_value = container[min_index]->calculating_the_function(argument);
 	std::cout << "The minimum value of the derivative: " << min_derivative_value << " (Function " << min_index + 1 << ")";
 	system("pause");
 }
@@ -154,7 +121,6 @@ void menu_min_derivative(int index) {
 void Console() {
 	int index = 0;
 	int key = 0;
-	TypeFunction type;
 	while (key != 27) {
 		system("cls");
 		menu(index);
@@ -170,18 +136,17 @@ void Console() {
 				std::cout << "Error: ";
 			}
 		}
-		type = container[index].get_type();
-
-		if (key == 51 && type != NONE) {
+		bool type = container[index]->NONE();
+		if (key == 51 && type != 1) {
 			container.delete_element(index);
 		}
-		if (key == 52 && type != NONE) {
+		if (key == 52 && type != 1) {
 			menu_value(index);
 		}
-		if (key == 53 && type != NONE) {
+		if (key == 53 && type != 1) {
 			menu_derivative(index);
 		}
-		if (key == 54 && type != NONE) {
+		if (key == 54 && type != 1) {
 			menu_primitive(index);
 		}
 		if (key == 13 && container.get_size() != 0) {
@@ -200,8 +165,4 @@ void Console() {
 int main() {
 	std::ios::sync_with_stdio(false);
 	Console();
-	for (int i = 0; i < container.get_size(); i++) {
-		delete container.get_data()[i];
-	}
-	delete[] container.get_data();
 }
