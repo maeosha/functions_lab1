@@ -1,86 +1,220 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <cmath>
+#pragma once
+
+
+
+
+#include <iostream>
+
+#include <utility>
+
+#include <iomanip>
+
 #include <conio.h>
+
+
+
+
+
+
+
+
+
+
 static const int CAPASITY = 30;
+
 class minimal;
 
+
+
+
 enum TypeFunction
+
 {
+
 	POWERFUNCTION,
+
 	NATUREFUNCTION,
+
 	NONE
+
 };
 
+
+
+
 class Function {
+
 private:
+
 	TypeFunction type;
 
+
+
+
 	float parameter_a;
+
 	float parameter_b;
+
 	float parameter_c;
+
 	float argument;
 
 
+
+
+
+
+
 public:
+
 	Function();
 
-	Function(float parameter_a, float parameter_b, TypeFunction type);
-	Function(float parameter_c, TypeFunction type);
+
+
+
+	Function(float parameter_a, float parameter_b);
+
+	Function(float parameter_c);
+
+
+
+
+
+
 
 	void set_parameter_a(float parameter_a);
+
 	void set_parameter_b(float parameter_b);
+
 	void set_parameter_c(float parameter_c);
+
 	void set_argument(float argument);
 
 
+
+
+
+
+
 	float get_parameter_a();
+
 	float get_parameter_b();
+
 	float get_parameter_c();
+
 	float get_argument();
+
 	TypeFunction get_type();
+
 };
 
-int get_key() {
-	int key;
-	return key = _getch();
-}
+
+
+
+
+
 
 class Function_list {
+
 private:
-	Function data[CAPASITY];
+
+	Function** data_ptr;
+
 	int size;
+
 public:
-	int index;
+
+	int quantity = 0;
+
+
+
+
 	Function_list();
+
+	Function_list(int index);
+
+
+
+
+	void swap(Function_list& container) noexcept;
+
+
+
+
+
 
 
 	int get_size();
 
-	Function get_element(int index);
-	void add_element(Function item, int index);
-	void delete_element(int index, int size);
+	Function** get_data();
 
-	void set_size(int _size);
-	float calculating_the_function(int index);
+
+
+
+	Function_list operator=(Function_list& container);
+
+	Function operator[](int index);
+
+
+
+
+	Function_list(Function_list& container);
+
+
+
+
+	~Function_list() noexcept;
+
+
+
+
+
+
+
+	void add_element(Function& item, int index);
+
+	void add_element_by_index(Function& item, int index);
+
+	void delete_element(int index);
+
+	float calculating_the_function(float argument, int index);
+
 	Function calculating_the_diff(int index);
+
 	float calculating_the_primitive(int index);
-	void set_argument(int index, float argeument);
-	minimal finding_min_derivative();
+
+	int finding_min_derivative(float argument);
 
 
-	void print_function(int index);
+
+
+
+
+
+	void print(int index);
+
 };
 
-class minimal {
-public:
-	float min_Function;
-	float min_Function_index;
-	minimal() {
-		min_Function = pow(10, 20);
-		min_Function_index = 0;
-	}
-};
+
+
+
+std::ostream& operator<<(std::ostream& stream, Function* item);
+
+
+
+
+void clear();
 
 void Console();
+
+void menu(int index);
+
+void menu_adder(int index, int key1);
+
+void menu_value(int index);
+
+void menu_derivative(int index);
+
+void menu_primitive(int index);
+
+void menu_min_derivative(int index);

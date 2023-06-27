@@ -18,8 +18,10 @@ if(MSVC)
 endif()
 
 # Объявляем библиотеку
+
 add_library(functions SHARED "include/functions/functions.h" "src/functions.cc")
 target_include_directories(functions PUBLIC "include")
+
 
 # Подключаем googletest
 include(FetchContent)
@@ -31,3 +33,5 @@ FetchContent_MakeAvailable(googletest)
 add_executable(functions_tests "tests/functions_tests.cc")
 target_link_libraries(functions_tests functions GTest::gtest_main)
 
+add_executable(console "src/console.cc")
+target_link_libraries(console functions)
